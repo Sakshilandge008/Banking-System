@@ -1,65 +1,22 @@
-from django.shortcuts import render
-from django.http import HttpResponse
-from .models import *
-from .forms import *
-from django.shortcuts import redirect
+from django.shortcuts import render, redirect
+from .models import User
 
-# Create your views here.
+def add_user(request):
+    if request.method == 'POST':
+        full_name = request.POST.get('full_name')
+        email = request.POST.get('email')
+        password = request.POST.get('password')
+        balance = request.POST.get('balance')
 
-def home(request):
-    return render(request,'home.html')
+        # 🔥 Create user properly
+        user = User.objects.create(
+            full_name=full_name,
+            email=email,
+            current_balance=balance
+        )
+        user.set_password(password)   # encrypt password
+        user.save()
 
-def user(request):
+        return redirect('home')
 
-    users = User.objects.all()
-    return render(request, 'users.html',{"users": users})
-
-def transfer(request, pk):
-    user = User.objects.get(pk=pk)
-    receiver = User.objects.all()
-    return render(request, 'transfer.html',{"user":user,"receiver":receiver})
-    
-def history(request):
-
-    transactions = Transaction.objects.order_by('-created_at')
-    return render(request, 'history.html', {"transactions":transactions})
-
-def add_transfer(request, pk):
-
-     if request.method == 'POST':
-
-         sender = request.POST.get('sender',None)
-         receiver = request.POST.get('receiver',None)
-         amount = request.POST.get('amount',None)
-
-         if int(amount) <= 0:
-             user = User.objects.get(pk=pk)
-             receiver = User.objects.all()
-             return render(request,'transfer.html',{"warning": "Oops! Entered amount is not valid", "receiver":receiver, "user": user})
-
-         sender_instance = User.objects.get(full_name=sender)
-         curr_balance = sender_instance.current_balance
-         receiver_instance = User.objects.get(full_name=receiver)
-        
-         if curr_balance > int(amount):
-             status = 'Successful'
-
-             receiver_instance.current_balance += int(amount)
-
-             receiver_instance.save()
-
-             sender_instance.current_balance -= int(amount)
-
-             sender_instance.save()
-
-             Transaction.objects.create(sender=sender_instance,recipient=receiver_instance,amount=amount,status=status)
-             return redirect(history)
-         else:
-              status = 'Failed'
-              Transaction.objects.create(sender=sender_instance,recipient=receiver_instance,amount=amount,status=status)
-              user = User.objects.get(pk=pk)
-              receiver = User.objects.all()
-              return render(request,'transfer.html',{"warning": "Transaction failed because of insufficient balance :(", "receiver":receiver, "user": user})
-           
-
-
+    return render(request, 'add_user.html')
