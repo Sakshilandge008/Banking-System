@@ -1,4 +1,7 @@
-{% extends 'index.html' %}{% load static %} {% block body %}
+{% extends 'index.html' %}
+{% load static %}
+
+{% block body %}
 
 <div class="landing_page container" data-aos="zoom-in" data-aos-duration="1000">
   <div>
@@ -8,15 +11,17 @@
       </h1>
       <p>Welcome to Lena Bank</p>
     </div>
+
     <div>
       <p>View users, check balances, transfer money<br />and more.</p>
     </div>
-    <button type="button" class="btn btn-dark get-started">Get started</button>
-    
+
+    <!-- ✅ FIXED BUTTON -->
+    <a href="{% url 'add_user' %}" class="btn btn-dark get-started">
+        Get started
+    </a>
+
   </div>
-  <br>
-  <br>
-  <br>
 </div>
 
 {% endblock %}
